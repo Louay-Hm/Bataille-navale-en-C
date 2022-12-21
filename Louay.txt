@@ -1,0 +1,2159 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <math.h>
+#include <windows.h>
+
+#define N 15
+#include <time.h>
+int pop = 22;
+char matf[N][N];
+char mat[N][N];
+char mat2[N][N];
+char mat3[N][N];
+int matid[N][N];
+int matidia[N][N];
+int PV[10]={7,1,1,1,1,3,3,3,5,5};
+int PVia[10]={7,1,1,1,1,3,3,3,5,5};
+int Qt=4;
+int NPA=1;
+int NC=2;
+int ND=3;
+int NSM=4;
+int NPAia=1;
+int NCia=2;
+int NDia=3;
+int NSMia=4;
+void my_delay(int i)    /*Pause l'application pour i seconds*/
+{
+    clock_t start,end;
+    start=clock();
+    while(((end=clock())-start)<=i*CLOCKS_PER_SEC);
+}
+void gotoligcol( int lig, int col )
+{
+// ressources
+    COORD mycoord;
+
+    mycoord.X = col;
+    mycoord.Y = lig;
+    SetConsoleCursorPosition( GetStdHandle( STD_OUTPUT_HANDLE ), mycoord );
+}
+void Color(int couleurDuTexte,int couleurDeFond) // fonction d'affichage de couleurs
+{
+    HANDLE H=GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleTextAttribute(H,couleurDeFond*16+couleurDuTexte);
+}
+void win(){
+    if (NPA+NC+ND+NSM==0){
+        system("cls");
+        printf("\n\n        Votre adversaire à gagne ! Une prochaine fois peut-être...");
+    }
+    else if (NPAia+NCia+NDia+NSMia==0){
+        system("cls");
+        printf("\n\n        Vous avez gagne ! Felicitations !");
+    }
+}
+char alpha[15] = {'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O'};
+int infoP[2][8];
+int infoC1[2][6];
+int infoC2[2][6];
+int infoD1[2][4];
+int infoD2[2][4];
+int infoD3[2][4];
+int infoPia[2][8];
+int infoC1ia[2][6];
+int infoC2ia[2][6];
+int infoD1ia[2][4];
+int infoD2ia[2][4];
+int infoD3ia[2][4];
+int infoS1[2][2];
+int infoS2[2][2];
+int infoS3[2][2];
+int infoS4[2][2];
+int infoS1ia[2][2];
+int infoS2ia[2][2];
+int infoS3ia[2][2];
+int infoS4ia[2][2];
+
+void creertabl(char mat[N][N]){
+    int i,j;
+    for(i = 1; i < N+1; i++) {
+        for( j = 1; j < N+1; j++) {
+            mat[i][j]=' ';
+        }
+    }
+}
+void creertablid(int mat[N][N]){
+    int i,j;
+    for(i = 1; i < N+1; i++) {
+        for( j = 1; j < N+1; j++) {
+            mat[i][j]=0;
+        }
+    }
+}
+void epave(int C, int L) {
+    if (matidia[L][C] != 0) {
+        if (PVia[0] == 0) {
+            gotoligcol(20, 96);
+            printf("%d", 0);
+            NPAia = 0;
+            int lancou = matidia[L][C];
+            for (int i = 1; i < N + 1; i++) {
+                for (int j = 1; j < N + 1; j++) {
+                    if (matidia[i][j] == lancou) {
+                        matidia[i][j] = 0;
+                        gotoligcol(i + 3, 80 + 4 * j);
+                        Color(0, 4);
+                        printf(" X ");
+
+                    }
+
+                }
+
+            }
+        } else if (PVia[matidia[L][C]] == 0) {
+            if (matidia[L][C] == 10) {
+                gotoligcol(20, 96);
+                printf("%d", NPAia - 1);
+                NPAia = NPAia - 1;
+            } else if (matidia[L][C] >= 8) {
+                gotoligcol(20, 112);
+                printf("%d", NCia - 1);
+                NCia = NCia - 1;
+            } else if (matidia[L][C] >= 5) {
+                gotoligcol(20, 129);
+                printf("%d", NDia - 1);
+                NDia = NDia - 1;
+            } else {
+                gotoligcol(20, 147);
+                printf("%d", NSMia - 1);
+                NSMia = NSMia - 1;
+            }
+            int lancou = matidia[L][C];
+            for (int i = 1; i < N + 1; i++) {
+                for (int j = 1; j < N + 1; j++) {
+                    if (matidia[i][j] == lancou) {
+                        matidia[i][j] = 0;
+                        gotoligcol(i + 3, 80 + 4 * j);
+                        Color(0, 4);
+                        printf(" X ");
+
+                    }
+                }
+            }
+        }
+    }
+}
+void epaveia(int C, int L) {
+    if (matid[L][C] != 0) {
+        if (PV[0] == 0) {
+            gotoligcol(20, 15);
+            printf("%d", 0);
+            NPA = 0;
+            int lancou = matid[L][C];
+            for (int i = 1; i < N + 1; i++) {
+                for (int j = 1; j < N + 1; j++) {
+                    if (matid[i][j] == lancou) {
+                        matid[i][j] = 0;
+                        gotoligcol(i + 3, 4 * j);
+                        Color(0, 9);
+                        printf("   |");
+
+                    }
+
+                }
+
+            }
+        } else if (PV[matid[L][C]] == 0) {
+            if (matid[L][C] == 10) {
+                gotoligcol(20, 15);
+                printf("%d", NPA - 1);
+                NPA = NPA - 1;
+            } else if (matid[L][C] >= 8) {
+                gotoligcol(20, 31);
+                printf("%d", NC - 1);
+                NC = NC - 1;
+            } else if (matid[L][C] >= 5) {
+                gotoligcol(20, 48);
+                printf("%d", ND - 1);
+                ND = ND - 1;
+            } else {
+                gotoligcol(20, 66);
+                printf("%d", NSM - 1);
+                NSM = NSM - 1;
+            }
+            int lancou = matid[L][C];
+            for (int i = 1; i < N + 1; i++) {
+                for (int j = 1; j < N + 1; j++) {
+                    if (matid[i][j] == lancou) {
+                        matid[i][j] = 0;
+                        gotoligcol(i + 3, 4 * j);
+                        Color(0, 9);
+                        printf("   ");
+
+                    }
+                }
+            }
+        }
+    }
+}
+void tirerpanpania(char mat[N][N],char mati[N][N],int C, int L){
+    gotoligcol(L+3,4*C);
+    if (mati[L][C]!=' '){
+
+
+        if (mat[L][C]!='T'){
+            if (mati[L][C]=='P'){
+                PV[0]=(PV[0])-1;
+            }
+            else {
+                PV[matid[L][C]] = (PV[matid[L][C]]) - 1;
+            }
+            Color(4, 8);
+            printf(" %c ",mati[L][C]);
+            mat[L][C]='T';
+        }
+
+    }
+    else {
+        Color(15,1);
+        printf(" E ");
+        mat[L][C]='E';
+        Sleep(1500);
+        gotoligcol(L+3,4*C);
+        Color(15,9);
+        printf("   ");
+    }
+    Color(15,0);
+
+}
+void ordinateur(){
+    int C = (rand() % (14 - 0) + 1);
+    int L = (rand() % (14 - 0) + 1);
+    tirerpanpania(matf,mat,C,L);
+    gotoligcol(pop,80);
+    Color(15,0);
+    printf("L'adversaire a joue : ");
+    gotoligcol(pop+1,80);
+    printf("Col : %c ",'A'+(C-1));
+    gotoligcol(pop+2,80);
+    printf("Lig : %d ",L);
+    if (matf[L][C]=='E'){
+        gotoligcol(pop+3,80);
+        printf("Resultat : Rate   ");
+    }
+    else {
+        gotoligcol(pop+3,80);
+        printf("Resultat : Touche");
+    }
+
+    Color(15,0);
+    epaveia(C,L);
+}
+void prob(int matidia[N][N]){
+    int i;
+    for (i=1;i<N+1;i++){
+        matidia[15][i]=0;
+    }
+}
+void placementbateauia(char mat2[N][N],int t,char M,int info[2][t+1],int z) {
+    Color(0, 9);
+    srand(time(NULL));
+    int c, i, j, k, r, v = 0, e;
+    while (v != 1) {
+        int h = rand() % (2 - 0) + 0 ;
+        e=0;
+        if (h!=1) {
+            i = (rand() % (14 - 0) + 0);
+            j = (rand() % (14 - 0) + 0);
+
+            for (k = i; k < i + t; k++) {
+                if ((i+t)> 15) {
+                    e =e+1;
+                }
+                if (mat2[k][j] != ' ') {
+                    e =e+1;
+                }
+            }
+            if (e == 0) {
+                for (k = i; k < i + t; k++) {
+                    mat2[k][j] = M;
+                    matidia[k][j]=z;
+                    info[0][0]=k;
+                    info[1][0]=j;
+                    info[0][-1]=h;
+                    info[1][-1]=t;
+                }
+                v = 1;
+            }
+        }
+        else {
+            i = (rand() % (14 - 0) + 0);
+            j = (rand() % (14 - 0) + 0);
+            e=0;
+            for (k = j; k < j + t; k++) {
+                if ((j+t)>15) {
+                    e =e+1;
+                }
+                if (mat2[i][k] != ' ') {
+                    e =e+1;
+                }
+            }
+            if (e == 0) {
+                for (k = j; k < j + t; k++) {
+                    mat2[i][k] = M;
+                    matidia[i][k]=z;
+                    info[0][0]=i;
+                    info[1][0]=k;
+                    info[0][-1]=h;
+                    info[1][-1]=t;
+                }
+                v = 1;
+            }
+        }
+        /*printf("%d",h);
+        printf("%d",i);
+        printf("%d",j);*/
+    }
+    Color(15,0);
+}
+/*void affichertabl(char mat[N][N]){
+    int i,j;
+
+    printf("  ");
+    for(i=0;i<N;i++){
+        printf(" | %c",alpha[i]);
+
+    }
+    printf(" |");
+    printf("\n");
+    printf("   ------------------------------------------------------------");
+    printf("\n");
+    for (i=1 ;i<10; i++){
+        printf(" %d ",i);
+        Color(15,9);
+        printf("|");
+        for(j=1; j<N+1; j++){
+            if (mat[i][j]==' ') {
+                printf(" %c |", mat[i][j]);
+            }
+            else {if (mat[i][j+1]!=' ') {
+                    Color(15, 8);
+                    printf(" %c ", mat[i][j]);
+                    printf("|");
+                    Color(15, 9);
+                }
+                else {
+                    Color(15, 8);
+                    printf(" %c ", mat[i][j]);
+
+                    Color(15, 9);
+                    printf("|");
+                }
+
+            }
+        }
+        Color(15,0);
+        printf("\n");
+    }
+    for (i=10 ;i<N+1; i++){
+        printf("%d ",i);
+        Color(15,9);
+        printf("|");
+        for(j=1; j<N+1; j++){
+            if (mat[i][j]==' ') {
+                printf(" %c |", mat[i][j]);
+            }
+            else {
+                if (mat[i][j+1]!=' ') {
+                    Color(15, 8);
+                    printf(" %c ", mat[i][j]);
+                    printf("|");
+                    Color(15, 9);
+                }
+                else {
+                    Color(15, 8);
+                    printf(" %c ", mat[i][j]);
+
+                    Color(15, 9);
+                    printf("|");
+                }
+
+            }
+        }
+        Color(15,0);
+        printf("\n");
+    }
+}
+*/
+
+void placementbateau(char mat[N][N],int t,char M,int info[2][t+1],int z) {
+    Color(0, 9);
+    srand(time(NULL));
+    int c, i, j, k, r, v = 0, e;
+    while (v != 1) {
+        int h = rand() % (2 - 0) + 0 ;
+        e=0;
+        if (h==1) {
+            i = (rand() % (14 - 0) + 0);
+            j = (rand() % (14 - 0) + 0);
+
+            for (k = i; k < i + t; k++) {
+                if ((i+t)> 15) {
+                    e =e+1;
+                }
+                if (mat[k][j] != ' ') {
+                    e =e+1;
+                }
+            }
+            if (e == 0) {
+                for (k = i; k < i + t; k++) {
+                    mat[k][j] = M;
+                    matid[k][j]=z;
+                    info[0][0]=k;
+                    info[1][0]=j;
+                    info[0][-1]=h;
+                    info[1][-1]=t;
+                }
+                v = 1;
+            }
+        }
+        else {
+            i = (rand() % (14 - 0) + 0);
+            j = (rand() % (14 - 0) + 0);
+            e=0;
+            for (k = j; k < j + t; k++) {
+                if ((j+t)>15) {
+                    e =e+1;
+                }
+                if (mat[i][k] != ' ') {
+                    e =e+1;
+                }
+            }
+            if (e == 0) {
+                for (k = j; k < j + t; k++) {
+                    mat[i][k] = M;
+                    matid[i][k]=z;
+                    info[0][0]=i;
+                    info[1][0]=k;
+                    info[0][-1]=h;
+                    info[1][-1]=t;
+                }
+                v = 1;
+            }
+        }
+        /*printf("%d",h);
+        printf("%d",i);
+        printf("%d",j);*/
+    }
+    Color(15,0);
+}
+
+
+void affichertabl(char mat[N][N], char mat2[N][N]){
+    int i,j;
+
+    printf("  ");
+    for(i=0;i<N;i++){
+        printf(" | %c",alpha[i]);
+
+    }
+    printf(" |");
+
+    int b,y;
+
+    printf("                  ");
+    for(b=0;b<N;b++){
+        printf(" | %c",alpha[b]);
+
+    }
+    printf(" |");
+    printf("\n");
+    printf("   -------------------------------------------------------------");
+    printf("                ");
+    printf("   -------------------------------------------------------------");
+    printf("\n");
+    for (i=1 ;i<10; i++){
+        printf(" %d ",i);
+        Color(15,9);
+        printf("|");
+        for(j=1; j<N+1; j++){
+            if (mat[i][j]==' ') {
+                printf(" %c |", mat[i][j]);
+            }
+
+            else {if (mat[i][j+1]!=' ') {
+                    Color(15, 8);
+                    printf(" %c ", mat[i][j]);
+                    printf("|");
+                    Color(15, 9);
+                }
+                else {
+                    Color(15, 8);
+                    printf(" %c ", mat[i][j]);
+
+                    Color(15, 9);
+                    printf("|");
+                }
+
+            }
+        }
+        Color(15,0);
+        printf("                ");
+        printf(" %d ",i);
+        Color(15,9);
+        printf("|");
+        for(j=1; j<N+1; j++){
+            if (mat2[i][j]==' ') {
+                printf(" %c |", mat2[i][j]);
+            }
+            else if (mat2[i][j]=='E') {
+                Color(15,1);
+                printf(" %c ", mat2[i][j]);
+                Color(15, 9);
+                printf("|");
+            }
+            else if (mat2[i][j]=='T') {
+                Color(15,4);
+                printf(" %c ", mat2[i][j]);
+                Color(15, 9);
+                printf("|");
+            }
+            else {if (mat2[i][j+1]!=' ') {
+                    Color(15, 8);
+                    printf(" %c ", mat2[i][j]);
+                    printf("|");
+                    Color(15, 9);
+                }
+                else {
+                    Color(15, 8);
+                    printf(" %c ", mat2[i][j]);
+
+                    Color(15, 9);
+                    printf("|");
+                }
+
+            }
+        }
+        Color(15,0);
+        printf(".");
+        printf("\n");
+    }
+    for (i=10 ;i<N+1; i++){
+        printf("%d ",i);
+        Color(15,9);
+        printf("|");
+        for(j=1; j<N+1; j++){
+            if (mat[i][j]==' ') {
+                printf(" %c |", mat[i][j]);
+            }
+
+            else {
+                if (mat[i][j+1]!=' ') {
+                    Color(15, 8);
+                    printf(" %c ", mat[i][j]);
+                    printf("|");
+                    Color(15, 9);
+                }
+                else {
+                    Color(15, 8);
+                    printf(" %c ", mat[i][j]);
+
+                    Color(15, 9);
+                    printf("|");
+                }
+
+            }
+        }
+        Color(15,0);
+        printf("                ");
+        printf("%d ",i);
+        Color(15,9);
+        printf("|");
+        for(j=1; j<N+1; j++){
+            if (mat2[i][j]==' ') {
+                printf(" %c |", mat2[i][j]);
+            }
+            else if (mat2[i][j]=='E') {
+                Color(15,1);
+                printf(" %c ", mat2[i][j]);
+                Color(15, 9);
+                printf("|");
+            }
+            else if (mat2[i][j]=='T') {
+                Color(15,4);
+                printf(" %c ", mat2[i][j]);
+                Color(15, 9);
+                printf("|");
+            }
+            else {
+                if (mat2[i][j+1]!=' ') {
+                    Color(15, 8);
+                    printf(" %c ", mat2[i][j]);
+                    printf("|");
+                    Color(15, 9);
+                }
+                else {
+                    Color(15, 8);
+                    printf(" %c ", mat2[i][j]);
+
+                    Color(15, 9);
+                    printf("|");
+                }
+
+            }
+        }
+
+
+
+        Color(15,0);
+        printf(".");
+        printf("\n");
+    }
+}
+int lettre(char x){
+    if (x=='A' || x=='a'){
+        return 1;
+    }
+    if (x=='B' || x=='b'){
+        return 2;
+    }
+    if (x=='C' || x=='c'){
+        return 3;
+    }
+    if (x=='D' || x=='d'){
+        return 4;
+    }
+    if (x=='E' || x=='e'){
+        return 5;
+    }
+    if (x=='F' || x=='f'){
+        return 6;
+    }
+    if (x=='G' || x=='g'){
+        return 7;
+    }
+    if (x=='H' || x=='h'){
+        return 8;
+    }
+    if (x=='I' || x=='i'){
+        return 9;
+    }
+    if (x=='J' || x=='j'){
+        return 10;
+    }
+    if (x=='K' || x=='k'){
+        return 11;
+    }
+    if (x=='L' || x=='l'){
+        return 12;
+    }
+    if (x=='M' || x=='m'){
+        return 13;
+    }
+    if (x=='N' || x=='n'){
+        return 14;
+    }
+    if (x=='O' || x=='o'){
+        return 15;
+    }
+
+}
+void affichertablid(int mat[N][N], int mat2[N][N]){
+    int i,j;
+
+    printf("  ");
+    for(i=0;i<N;i++){
+        printf(" | %c",alpha[i]);
+
+    }
+    printf(" |");
+
+    int b,y;
+
+    printf("                  ");
+    for(b=0;b<N;b++){
+        printf(" | %c",alpha[b]);
+
+    }
+    printf(" |");
+    printf("\n");
+    printf("   -------------------------------------------------------------");
+    printf("                  ");
+    printf(" -------------------------------------------------------------");
+    printf("\n");
+    for (i=1 ;i<10; i++) {
+        printf(" %d ", i);
+        Color(15, 9);
+        printf("|");
+        for (j = 1; j < N + 1; j++) {
+
+            printf(" %d |", mat[i][j]);
+
+
+        }
+        Color(15, 0);
+        printf("                ");
+        printf(" %d ", i);
+        Color(15, 9);
+        printf("|");
+        for (j = 1; j < N + 1; j++) {
+
+            printf(" %d |", mat2[i][j]);
+        }
+
+
+
+        Color(15,0);
+        printf(".");
+        printf("\n");
+    }
+    for (i=10 ;i<N+1; i++){
+        printf("%d ",i);
+        Color(15,9);
+        printf("|");
+        for(j=1; j<N+1; j++){
+
+                printf(" %d |", mat[i][j]);
+
+        }
+        Color(15,0);
+        printf("                ");
+        printf("%d ",i);
+        Color(15,9);
+        printf("|");
+        for(j=1; j<N+1; j++){
+
+                printf(" %d |", mat2[i][j]);
+
+
+        }
+
+
+
+        Color(15,0);
+        printf(".");
+        printf("\n");
+    }
+}
+
+void tirer(char mat[N][N],char mat3[N][N], int C, int L){
+    int l;
+    l=L;
+    int c;
+    if (C<94){
+        c=C-64;
+    }
+    else {
+        c=C-96;
+    }
+    if (mat[l][c]!=' '){
+
+        mat3[l][c]='T';
+    }
+    else {
+
+        mat3[l][c]='E';
+    }
+
+}
+
+void tirerpanpan(char mat[N][N],char mati[N][N],int C, int L) {
+    gotoligcol(L + 3, 80 + 4 * C);
+    if (mati[L][C] != ' ') {
+
+        if (mat[L][C] != 'T') {
+            if (mati[L][C] == 'P') {
+                PVia[0] = (PVia[0]) - 1;
+            }
+            else {
+                PVia[matidia[L][C]] = (PVia[matidia[L][C]]) - 1;
+            }
+            Color(15, 4);
+            printf(" T ");
+            mat[L][C] = 'T';
+
+        }
+    }
+    else {
+            Color(15, 1);
+            printf(" E ");
+            mat[L][C] = 'E';
+        }
+        Color(15, 0);
+
+    }
+
+void fumigene2(char mat[N][N],char mati[N][N],int C, int L){
+    gotoligcol(L+3,80+4*C);
+    if (mati[L][C]!=' '){
+        Color(15, 4);
+        printf(" T ");
+
+    }
+    else {
+        Color(15,1);
+        printf(" E ");
+
+    }
+    Color(15,0);
+    gotoligcol(23,0);
+    printf("  \n");
+    printf("  ");
+}
+void fumigene2fin(char mat[N][N],char mati[N][N],int C, int L){
+    gotoligcol(L+3,80+4*C);
+    if (mati[L][C]==' '){
+        Color(15, 9);
+        printf("   ");
+
+    }
+    else if (mati[L][C]=='T'){
+        Color(15,4);
+        printf(" T ");
+
+    }
+    else if (mati[L][C]=='E') {
+        Color(15, 1);
+        printf(" E ");
+    }
+    gotoligcol(23,0);
+    printf("  \n");
+    printf("  ");
+}
+void fumigene(int C, int L){
+    gotoligcol(L+3,80+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+3,84+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+3,88+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+3,92+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+4,80+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+4,84+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+4,88+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+4,92+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+5,80+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+5,84+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+5,88+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+5,92+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+6,80+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+6,84+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+6,88+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+6,92+4*C);
+    Color(15,8);
+    printf("   ");
+    Sleep(150);
+    gotoligcol(L+3,80+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+3,84+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+3,88+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+3,92+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+4,80+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+4,84+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+4,88+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+4,92+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+5,80+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+5,84+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+5,88+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+5,92+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+6,80+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+6,84+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+6,88+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+6,92+4*C);
+    Color(15,7);
+    printf("   ");
+    Sleep(150);
+    gotoligcol(L+3,80+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+3,84+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+3,88+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+3,92+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+4,80+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+4,84+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+4,88+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+4,92+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+5,80+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+5,84+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+5,88+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+5,92+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+6,80+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+6,84+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+6,88+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+6,92+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+3,80+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+3,84+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+3,88+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+3,92+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+4,80+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+4,84+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+4,88+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+4,92+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+5,80+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+5,84+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+5,88+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+5,92+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+6,80+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+6,84+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+6,88+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+6,92+4*C);
+    Color(15,7);
+    printf("   ");
+    Sleep(150);
+    gotoligcol(L+3,80+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+3,84+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+3,88+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+3,92+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+4,80+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+4,84+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+4,88+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+4,92+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+5,80+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+5,84+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+5,88+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+5,92+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+6,80+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+6,84+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+6,88+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+6,92+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+3,80+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+3,84+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+3,88+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+3,92+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+4,80+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+4,84+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+4,88+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+4,92+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+5,80+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+5,84+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+5,88+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+5,92+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+6,80+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+6,84+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+6,88+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+6,92+4*C);
+    Color(15,8);
+    printf("   ");
+    Sleep(150);
+    gotoligcol(L+3,80+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+3,84+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+3,88+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+3,92+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+4,80+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+4,84+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+4,88+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+4,92+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+5,80+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+5,84+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+5,88+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+5,92+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+6,80+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+6,84+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+6,88+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+6,92+4*C);
+    Color(15,7);
+    printf("   ");
+    Sleep(150);
+    gotoligcol(L+3,80+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+3,84+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+3,88+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+3,92+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+4,80+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+4,84+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+4,88+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+4,92+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+5,80+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+5,84+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+5,88+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+5,92+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+6,80+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+6,84+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+6,88+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+6,92+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+3,80+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+3,84+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+3,88+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+3,92+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+4,80+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+4,84+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+4,88+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+4,92+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+5,80+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+5,84+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+5,88+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+5,92+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+6,80+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+6,84+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+6,88+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+6,92+4*C);
+    Color(15,7);
+    printf("   ");
+    Sleep(150);
+    gotoligcol(L+3,80+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+3,84+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+3,88+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+3,92+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+4,80+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+4,84+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+4,88+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+4,92+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+5,80+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+5,84+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+5,88+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+5,92+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+6,80+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+6,84+4*C);
+    Color(15,8);
+    printf("   ");
+    gotoligcol(L+6,88+4*C);
+    Color(15,7);
+    printf("   ");
+    gotoligcol(L+6,92+4*C);
+    Color(15,8);
+    printf("   ");
+
+}
+void fumi(char mat[N][N],char mati[N][N],int C, int L){
+    gotoligcol(L+3,80+4*C);
+    fumigene2(mat,mati,C,L);
+    gotoligcol(L+3,84+4*C);
+    fumigene2(mat,mati,C+1,L);
+    gotoligcol(L+3,88+4*C);
+    fumigene2(mat,mati,C+2,L);
+    gotoligcol(L+3,92+4*C);
+    fumigene2(mat,mati,C+3,L);
+    gotoligcol(L+4,80+4*C);
+    fumigene2(mat,mati,C,L+1);
+    gotoligcol(L+4,84+4*C);
+    fumigene2(mat,mati,C+1,L+1);
+    gotoligcol(L+4,88+4*C);
+    fumigene2(mat,mati,C+2,L+1);
+    gotoligcol(L+4,92+4*C);
+    fumigene2(mat,mati,C+3,L+1);
+    gotoligcol(L+5,80+4*C);
+    fumigene2(mat,mati,C,L+2);
+    gotoligcol(L+5,84+4*C);
+    fumigene2(mat,mati,C+1,L+2);
+    gotoligcol(L+5,88+4*C);
+    fumigene2(mat,mati,C+2,L+2);
+    gotoligcol(L+5,92+4*C);
+    fumigene2(mat,mati,C+3,L+2);
+    gotoligcol(L+6,80+4*C);
+    fumigene2(mat,mati,C,L+3);
+    gotoligcol(L+6,84+4*C);
+    fumigene2(mat,mati,C+1,L+3);
+    gotoligcol(L+6,88+4*C);
+    fumigene2(mat,mati,C+2,L+3);
+    gotoligcol(L+6,92+4*C);
+    fumigene2(mat,mati,C+3,L+3);
+
+}
+void fumi2fin(char mat[N][N],char mati[N][N],int C, int L){
+    gotoligcol(L+3,80+4*C);
+    fumigene2fin(mat,mati,C,L);
+    gotoligcol(L+3,84+4*C);
+    fumigene2fin(mat,mati,C+1,L);
+    gotoligcol(L+3,88+4*C);
+    fumigene2fin(mat,mati,C+2,L);
+    gotoligcol(L+3,92+4*C);
+    fumigene2fin(mat,mati,C+3,L);
+    gotoligcol(L+4,80+4*C);
+    fumigene2fin(mat,mati,C,L+1);
+    gotoligcol(L+4,84+4*C);
+    fumigene2fin(mat,mati,C+1,L+1);
+    gotoligcol(L+4,88+4*C);
+    fumigene2fin(mat,mati,C+2,L+1);
+    gotoligcol(L+4,92+4*C);
+    fumigene2fin(mat,mati,C+3,L+1);
+    gotoligcol(L+5,80+4*C);
+    fumigene2fin(mat,mati,C,L+2);
+    gotoligcol(L+5,84+4*C);
+    fumigene2fin(mat,mati,C+1,L+2);
+    gotoligcol(L+5,88+4*C);
+    fumigene2fin(mat,mati,C+2,L+2);
+    gotoligcol(L+5,92+4*C);
+    fumigene2fin(mat,mati,C+3,L+2);
+    gotoligcol(L+6,80+4*C);
+    fumigene2fin(mat,mati,C,L+3);
+    gotoligcol(L+6,84+4*C);
+    fumigene2fin(mat,mati,C+1,L+3);
+    gotoligcol(L+6,88+4*C);
+    fumigene2fin(mat,mati,C+2,L+3);
+    gotoligcol(L+6,92+4*C);
+    fumigene2fin(mat,mati,C+3,L+3);
+
+}
+void petitpas(int C, int L){
+    char D;
+    int t;
+    if (matid[L][C]==10){
+        t=7;
+    }
+    else if (matid[L][C]>=8){
+        t=5;
+    }
+    else if (matid[L][C]>=5){
+        t=3;
+    }
+    else if (matid[L][C]>=1){
+        t=1;
+    }
+    int identite=matid[L][C];
+    if (matid[L][C]==matid[L][C+1] || matid[L][C]==matid[L][C-1]) {
+        printf("Tapez 'E' pour Est ou 'O' pour Ouest :\n");
+        scanf("%s", &D);
+        if (D == 'E') {
+            do {
+                C = C + 1;
+            } while (matid[L][C] == identite);
+            if (matid[L][C] != 0 || C > 15) {
+                printf("Impossible, tu passes ton tours !");
+            } else {
+                matid[L][C] = identite;
+                matid[L][C - t] = 0;
+                mat[L][C] = mat[L][C - 1];
+                mat[L][C - t] = ' ';
+                gotoligcol(L + 3, 4 * C - 1);
+                Color(15, 8);
+                printf("| %c ", mat[L][C]);
+                gotoligcol(L + 3, 4 * (C - t));
+                Color(15, 9);
+                printf("   |");
+
+            }
+        } else {
+            do {
+                C = C - 1;
+            } while (matid[L][C] == identite);
+            if (matid[L][C] != 0 || C < 1) {
+                printf("Impossible, tu passes ton tours !");
+            } else {
+                matid[L][C] = identite;
+                matid[L][C + t] = 0;
+                mat[L][C] = mat[L][C + 1];
+                mat[L][C + t] = ' ';
+                gotoligcol(L + 3, 4 * C);
+                Color(15, 8);
+                printf(" %c |", mat[L][C]);
+                gotoligcol(L + 3, 4 * (C + t));
+                Color(15, 9);
+                printf("|   ");
+            }
+        }
+    }
+    else {
+        printf("Tapez 'N' pour Nord ou 'S' pour Sud :\n");
+        scanf("%s", &D);
+        if (D == 'S') {
+            do {
+                L = L + 1;
+            } while (matid[L][C] == identite);
+            if (matid[L][C] != 0 || L > 15) {
+                printf("Impossible, tu passes ton tours !");
+            } else {
+                matid[L][C] = identite;
+                matid[L - t][C] = 0;
+                mat[L][C] = mat[L - 1][C];
+                mat[L - t][C] = ' ';
+                gotoligcol(L + 3, 4 * C);
+                Color(15, 8);
+                printf(" %c ", mat[L][C]);
+                gotoligcol((L - t) + 3, 4 * C);
+                Color(15, 9);
+                printf("   ");
+
+            }
+        } else {
+            do {
+                L = L - 1;
+            } while (matid[L][C] == identite);
+            if (matid[L][C] != 0 || L < 1) {
+                printf("Impossible, tu passes ton tours !");
+            } else {
+                matid[L][C] = identite;
+                matid[L + t][C] = 0;
+                mat[L][C] = mat[L + 1][C];
+                mat[L + t][C] = ' ';
+                gotoligcol(L + 3, 4 * C);
+                Color(15, 8);
+                printf(" %c ", mat[L][C]);
+                gotoligcol((L + t) + 3, 4 * C);
+                Color(15, 9);
+                printf("   ");
+            }
+        }
+    }
+}
+void deplacer(char mat[N][N], int C, int L) {
+    if (mat[L][C] == 'P') {
+        if (mat[0][-1]==0) {
+            mat[infoP[0][0]][infoP[1][0] + 7] = mat[infoP[0][0]][infoP[1][0]];
+            mat[infoP[0][0]][infoP[1][0]] = ' ';
+            gotoligcol(infoP[0][0] + 3, 4 * (infoP[1][0]+1) - 1);
+            Color(15, 8);
+            printf("| P ");
+            gotoligcol(infoP[0][0] + 3, 4 * (infoP[1][0] - 6));
+            Color(15, 9);
+            printf("   |");
+        }
+        else {
+            mat[infoP[0][0]+7][infoP[1][0]] = mat[infoP[0][0]][infoP[1][0]];
+            mat[infoP[0][0]][infoP[1][0]] = ' ';
+            gotoligcol(infoP[0][6] + 3, 4 * (infoP[1][6]) - 1);
+            Color(15, 8);
+            printf("| P ");
+            gotoligcol(infoP[0][0] +7, 4 * (infoP[1][0]));
+            Color(15, 9);
+            printf("   |");
+        }
+
+    }
+}
+void utilfum(char mataff[N][N],char mati[N][N],int C, int L){
+    if (C>12){
+        printf("Localisation incorrecte");
+    }
+    else if (L>12){
+        printf("Localisation incorrecte");
+    }
+    else {
+        fumigene(C,L);
+        Sleep(150);
+        fumi(mataff, mati, C, L);
+        Sleep(3000);
+        fumigene(C,L);
+        Sleep(150);
+        fumi2fin(mati, mataff, C, L);
+
+
+
+    }
+}
+
+
+
+int main() {
+    srand(time(NULL));
+    int acceuil;
+    int w,r=0;
+
+
+    do{
+        gotoligcol(2,65);
+        Color(0,5);
+        printf(" B A T A I L L E         N A V A L E ");
+        Color(5,0);
+        gotoligcol(2,102);
+        printf("  !");
+        Color(15,0);
+        gotoligcol(3,0);
+        printf("1 - choisir de faire une partie\n\n");
+        printf("2 - charger une partie\n\n");
+        printf("3 - Regle de jeu\n\n");
+        printf("4 - Quitter\n");
+        scanf("%i",&acceuil);
+        system ("cls");
+        switch (acceuil) {
+
+
+            case 1 :
+                creertabl(mat);
+                creertabl(mat2);
+                creertabl(mat3);
+                creertabl(matf);
+                creertablid(matid);
+                creertablid(matidia);
+
+                placementbateau(mat,7,'P',infoP,10);
+                placementbateauia(mat2,7,'P',infoPia,10);
+                placementbateau(mat,5,'C',infoC1,9);
+                placementbateau(mat,3,'D',infoD1,7);
+                placementbateau(mat,5,'C',infoC2,8);
+                placementbateau(mat,3,'D',infoD2,6);
+                placementbateau(mat,3,'D',infoD3,5);
+                placementbateau(mat,1,'S',infoS1,4);
+                placementbateau(mat,1,'S',infoS2,3);
+                placementbateau(mat,1,'S',infoS3,2);
+                placementbateau(mat,1,'S',infoS4,1);
+                placementbateauia(mat2,5,'C',infoC1ia,9);
+                placementbateauia(mat2,3,'D',infoD1ia,7);
+                placementbateauia(mat2,5,'C',infoC2ia,8);
+                placementbateauia(mat2,3,'D',infoD2ia,6);
+                placementbateauia(mat2,3,'D',infoD3ia,5);
+                placementbateauia(mat2,1,'S',infoS1ia,4);
+                placementbateauia(mat2,1,'S',infoS2ia,3);
+                placementbateauia(mat2,1,'S',infoS3ia,2);
+                placementbateauia(mat2,1,'S',infoS4ia,1);
+                prob(matidia);
+
+                printf("\n\n");
+
+                affichertabl(mat,mat3);
+                /*gotoligcol(5,65);
+                Color(15,2);
+                printf("                 ");
+                gotoligcol(6,65);
+                printf(" porte avion : 1 ");
+                gotoligcol(7,65);
+                printf("                 ");
+                gotoligcol(8,65);
+                printf(" croiseur    : 2 ");
+                gotoligcol(9,65);
+                printf("                 ");
+                gotoligcol(10,65);
+                printf(" destroyer   : 3 ");
+                gotoligcol(11,65);
+                printf("                 ");
+                gotoligcol(12,65);
+                printf(" sous-marin  : 4 ");
+                gotoligcol(13,65);
+                printf("                 ");
+                Color(15,0);*/
+                gotoligcol(20,0);
+                printf("Porte Avions : %d",NPA);
+                printf("    Croiseur : %d",NC);
+                printf("    Destroyer : %d",ND);
+                printf("    Sous-marin : %d",NSM);
+                /*gotoligcol(5,150);
+                Color(15,5);
+                printf("                 ");
+                gotoligcol(6,150);
+                printf(" porte avion : 1 ");
+                gotoligcol(7,150);
+                printf("                 ");
+                gotoligcol(8,150);
+                printf(" croiseur    : 2 ");
+                gotoligcol(9,150);
+                printf("                 ");
+                gotoligcol(10,150);
+                printf(" destroyer   : 3 ");
+                gotoligcol(11,150);
+                printf("                 ");
+                gotoligcol(12,150);
+                printf(" sous-marin  : 4 ");
+                gotoligcol(13,150);
+                printf("                 ");*/
+                gotoligcol(20,81);
+                Color(15,0);
+                printf("Porte Avions : %d",NPAia);
+                printf("    Croiseur : %d",NCia);
+                printf("    Destroyer : %d",NDia);
+                printf("    Sous-marin : %d",NSMia);
+                for (int q=4;q<19;q++) {
+                    gotoligcol(q, 144);
+                    Color(15, 0);
+                    printf(" ");
+                    Color(15, 0);
+                }
+                printf("\n\n");
+                int C,L=1;
+                char x;
+                char choix;
+                pop=22;
+                do{
+                    gotoligcol(pop,0);
+                    Color(15,0);
+                    printf("                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n");
+                    gotoligcol(pop,0);
+                    printf("Choisir entre 4 actions :\n");
+                    printf("1) Tirer\n");
+                    printf("2) Declencher (%d) \n",Qt);
+                    printf("3) Deplacer \n");
+                    printf("4) sauvegarder\n");
+                    printf("5) quitter sans sauvegarder\n");
+                    scanf("%c",&choix);
+
+
+
+
+
+                    switch (choix) {
+
+                        case '1' :
+                            do {
+                                Color(15,0);
+                                printf("Choisir une case :\n");
+                                printf("Colonne :\n");
+                                /*scanf("%d", &C);*/
+                                scanf("%s", &x);
+                                C= lettre(x);
+                                printf("ligne  :\n");
+                                scanf("%d", &L);
+                            }while((C<0 || C>16 || L<0 || L>16));
+
+
+
+                            tirerpanpan(mat3, mat2, C, L);
+                            epave(C, L);
+
+                            gotoligcol(pop,0);
+                            Color(15,0);
+                            printf("                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n");
+                            gotoligcol(pop,0);
+                            ordinateur();
+                            break;
+                        case '2' :
+                            if (Qt>=1) {
+                                do {
+                                    Color(15, 0);
+                                    printf("Choisir une case :\n");
+                                    printf("Colonne :\n");
+                                    /*scanf("%d", &C);*/
+                                    scanf("%s", &x);
+                                    C = lettre(x);
+                                    printf("ligne  :\n");
+                                    scanf("%d", &L);
+                                } while ((C < 0 || C > 16 || L < 0 || L > 16));
+                                utilfum(mat3, mat2, C, L);
+                                Qt=Qt-1;
+                                gotoligcol(pop, 0);
+                                Color(15, 0);
+                                printf("                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n");
+                                gotoligcol(pop, 0);
+                                ordinateur();
+                            }
+                            else {
+                                printf("Plus de munitions");
+                            }
+                            break;
+                        case '3' :
+                            Color(15,0);
+                            printf("Choisir une case :\n");
+                            printf("Colonne :\n");
+                            scanf("%s", &x);
+                            C= lettre(x);
+                            /*scanf("%d", &C);*/
+                            printf("ligne  :\n");
+                            scanf("%d", &L);
+
+                            petitpas(C,L);
+                            Color(15,0);
+                            gotoligcol(pop,0);
+                            Color(15,0);
+                            printf("                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n");
+                            gotoligcol(pop,0);
+                            printf("%d", infoP[0][0]);
+                            printf("  \n");
+                            printf("  ");
+                            ordinateur();
+                            break;
+                        case '4' :
+                            printf("finitopipo");
+                            int i,j,n;
+                            char m;
+                            FILE * write1;
+                            FILE * write2;
+                            FILE * write3;
+                            FILE * write4;
+                            FILE * write5;
+                            FILE * write6;
+                            FILE * write7;
+                            FILE * write8;
+                            FILE * write9;
+                            FILE * write10;
+                            FILE * write11;
+                            FILE * write12;
+                            FILE * write13;
+                            FILE * write14;
+                            FILE * write15;
+                            FILE * write16;
+                            FILE * write17;
+                            fopen("sauvegarde.txt","w");
+                            write1 = fopen("sauvegarde.txt","a");
+                            for (i=1;i<N+1;i++){
+                                for (j=1;i<N+1;i++){
+                                    m=matf[i][j];
+                                    fputc(m,write1);
+                                }
+                            }
+                            fclose(write1);
+                            write2 = fopen("sauvegarde.txt","a");
+                            for (i=1;i<N+1;i++){
+                                for (j=1;i<N+1;i++){
+                                    m=mat[i][j];
+                                    fputc(m,write2);
+                                }
+                            }
+                            fclose(write2);
+                            write3 = fopen("sauvegarde.txt","a");
+                            for (i=1;i<N+1;i++){
+                                for (j=1;i<N+1;i++){
+                                    m=mat2[i][j];
+                                    fputc(m,write3);
+                                }
+                            }
+                            fclose(write3);
+                            write4 = fopen("sauvegarde.txt","a");
+                            for (i=1;i<N+1;i++){
+                                for (j=1;i<N+1;i++){
+                                    m=mat3[i][j];
+                                    fputc(m,write4);
+                                }
+                            }
+                            fclose(write4);
+                            write5 = fopen("sauvegarde.txt","a");
+                            for (i=1;i<N+1;i++){
+                                for (j=1;i<N+1;i++){
+                                    n=matid[i][j];
+                                    fputc(n,write5);
+                                }
+                            }
+                            fclose(write5);
+                            write6 = fopen("sauvegarde.txt","a");
+                            for (i=1;i<N+1;i++){
+                                for (j=1;i<N+1;i++){
+                                    n=matidia[i][j];
+                                    fputc(n,write6);
+                                }
+                            }
+                            fclose(write6);
+                            write7 = fopen("sauvegarde.txt","a");
+
+                                for (j=0;i<10;i++){
+                                    n=PV[j];
+                                    fputc(n,write7);
+                                }
+
+                            fclose(write7);
+                            write8 = fopen("sauvegarde.txt","a");
+
+                            for (j=0;i<10;i++){
+                                n=PVia[j];
+                                fputc(n,write8);
+                            }
+
+                            fclose(write8);
+                            write9 = fopen("sauvegarde.txt","a");
+                            n=Qt;
+                            fputc(n,write9);
+                            fclose(write9);
+
+                            break;
+                        case '5' :
+                            system("cls");
+                            break;
+                        case 'v':
+                            gotoligcol(pop,0);
+                            Color(15,0);
+                            printf("                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n");
+                            gotoligcol(pop,0);
+                            affichertabl(mat,mat2);
+                            pop=pop+19;
+                            /*affichertablid(matid,matidia);*/
+
+                            break;
+
+                    }win();
+
+
+                }while(choix!='5');
+
+                break;
+
+
+
+            case 2 : {
+                pop = 22;/*printf("Recharge de la partie\n");*/
+                FILE * open;
+                int i, j, n;
+                char m;
+                open = fopen("sauvegarde.txt", "r");
+                for (i = 1; i < N + 1; i++) {
+                    for (j = 1; i < N + 1; i++) {
+                        m = fgetc(open);
+                        matf[i][j] = m;
+                    }
+                }
+                for (i = 1; i < N + 1; i++) {
+                    for (j = 1; i < N + 1; i++) {
+                        m = fgetc(open);
+                        mat[i][j] = m;
+                    }
+                }
+                for (i = 1; i < N + 1; i++) {
+                    for (j = 1; i < N + 1; i++) {
+                        m = fgetc(open);
+                        mat2[i][j] = m;
+                    }
+                }
+                for (i = 1; i < N + 1; i++) {
+                    for (j = 1; i < N + 1; i++) {
+                        m = fgetc(open);
+                        mat3[i][j] = m;
+                    }
+                }
+                for (i = 1; i < N + 1; i++) {
+                    for (j = 1; i < N + 1; i++) {
+                        n = fgetc(open);
+                        matid[i][j] = n;
+                    }
+                }
+                for (i = 1; i < N + 1; i++) {
+                    for (j = 1; i < N + 1; i++) {
+                        n = fgetc(open);
+                        matidia[i][j] = n;
+                    }
+                }
+                for (j = 0; i < 10; i++) {
+                    n = fgetc(open);
+                    PV[j] = n;
+                }
+                for (j = 0; i < 10; i++) {
+                    n = fgetc(open);
+                    PVia[j] = n;
+                }
+                printf("\n\n");
+                Color(15, 0);
+            }
+                affichertabl(mat,mat3);
+                /*gotoligcol(5,65);
+                Color(15,2);
+                printf("                 ");
+                gotoligcol(6,65);
+                printf(" porte avion : 1 ");
+                gotoligcol(7,65);
+                printf("                 ");
+                gotoligcol(8,65);
+                printf(" croiseur    : 2 ");
+                gotoligcol(9,65);
+                printf("                 ");
+                gotoligcol(10,65);
+                printf(" destroyer   : 3 ");
+                gotoligcol(11,65);
+                printf("                 ");
+                gotoligcol(12,65);
+                printf(" sous-marin  : 4 ");
+                gotoligcol(13,65);
+                printf("                 ");
+                Color(15,0);*/
+                gotoligcol(20,0);
+                printf("Porte Avions : 1    Croiseur : 2    Destroyer : 3    Sous-marin : 4");
+                /*gotoligcol(5,150);
+                Color(15,5);
+                printf("                 ");
+                gotoligcol(6,150);
+                printf(" porte avion : 1 ");
+                gotoligcol(7,150);
+                printf("                 ");
+                gotoligcol(8,150);
+                printf(" croiseur    : 2 ");
+                gotoligcol(9,150);
+                printf("                 ");
+                gotoligcol(10,150);
+                printf(" destroyer   : 3 ");
+                gotoligcol(11,150);
+                printf("                 ");
+                gotoligcol(12,150);
+                printf(" sous-marin  : 4 ");
+                gotoligcol(13,150);
+                printf("                 ");*/
+                gotoligcol(20,81);
+                Color(15,0);
+                printf("Porte Avions : 1    Croiseur : 2    Destroyer : 3    Sous-marin : 4");
+                for (int q=4;q<19;q++) {
+                    gotoligcol(q, 144);
+                    Color(15, 0);
+                    printf(" ");
+                    Color(15, 0);
+                }
+                printf("\n\n");
+                int Cs,Ls=1;
+                char xs;
+                char choixs;
+
+                do{
+                    gotoligcol(pop,0);
+                    Color(15,0);
+                    printf("                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n");
+                    gotoligcol(pop,0);
+                    printf("Choisir entre 4 actions :\n");
+                    printf("1) Tirer\n");
+                    printf("2) Declencher \n");
+                    printf("3) Deplacer \n");
+                    printf("4) sauvegarder\n");
+                    printf("5) quitter sans sauvegarder\n");
+                    scanf("%c",&choixs);
+
+
+
+
+
+                    switch (choixs) {
+
+                        case '1' :
+                            do {
+                                Color(15,0);
+                                printf("Choisir une case :\n");
+                                printf("Colonne :\n");
+                                /*scanf("%d", &Cs);*/
+                                scanf("%s", &xs);
+                                C= lettre(xs);
+                                printf("ligne  :\n");
+                                scanf("%d", &Ls);
+                            }while((Cs<0 || Cs>16 || Ls<0 || Ls>16));
+
+
+
+                            tirerpanpan(mat3, mat2, Cs, Ls);
+                            epave(Cs, Ls);
+
+                            gotoligcol(pop,0);
+                            Color(15,0);
+                            printf("                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n");
+                            gotoligcol(pop,0);
+                            ordinateur();
+                            break;
+                        case '2' :
+                            do{
+                            Color(15,0);
+                            printf("Choisir une case :\n");
+                            printf("Colonne :\n");
+                            /*scanf("%d", &Cs);*/
+                            scanf("%s", &xs);
+                            C= lettre(xs);
+                            printf("ligne  :\n");
+                            scanf("%d", &Ls);
+                            }while((Cs<0 || Cs>16 || Ls<0 || Ls>16));
+                            utilfum(mat3, mat2, Cs, Ls);
+                            gotoligcol(pop,0);
+                            Color(15,0);
+                            printf("                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n");
+                            gotoligcol(pop,0);
+                            ordinateur();
+                            break;
+                        case '3' :
+                            Color(15,0);
+                            printf("Choisir une case :\n");
+                            printf("Colonne :\n");
+                            scanf("%s", &xs);
+                            C= lettre(xs);
+                            /*scanf("%d", &Cs);*/
+                            printf("ligne  :\n");
+                            scanf("%d", &Ls);
+
+                            petitpas(Cs, Ls);
+                            Color(15,0);
+                            gotoligcol(pop,0);
+                            Color(15,0);
+                            printf("                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n");
+                            gotoligcol(pop,0);
+                            printf("%d", infoP[0][0]);
+                            printf("  \n");
+                            printf("  ");
+                            ordinateur();
+                            break;
+                        case '4' :
+                            printf("finitopipo");
+                            int i,j,n;
+                            char m;
+                            FILE * write1;
+                            FILE * write2;
+                            FILE * write3;
+                            FILE * write4;
+                            FILE * write5;
+                            FILE * write6;
+                            FILE * write7;
+                            FILE * write8;
+                            fopen("sauvegarde.txt","w");
+                            write1 = fopen("sauvegarde.txt","a");
+                            for (i=1;i<N+1;i++){
+                                for (j=1;i<N+1;i++){
+                                    m=matf[i][j];
+                                    fputc(m,write1);
+                                }
+                            }
+                            fclose(write1);
+                            write2 = fopen("sauvegarde.txt","a");
+                            for (i=1;i<N+1;i++){
+                                for (j=1;i<N+1;i++){
+                                    m=mat[i][j];
+                                    fputc(m,write2);
+                                }
+                            }
+                            fclose(write2);
+                            write3 = fopen("sauvegarde.txt","a");
+                            for (i=1;i<N+1;i++){
+                                for (j=1;i<N+1;i++){
+                                    m=mat2[i][j];
+                                    fputc(m,write3);
+                                }
+                            }
+                            fclose(write3);
+                            write4 = fopen("sauvegarde.txt","a");
+                            for (i=1;i<N+1;i++){
+                                for (j=1;i<N+1;i++){
+                                    m=mat3[i][j];
+                                    fputc(m,write4);
+                                }
+                            }
+                            fclose(write4);
+                            write5 = fopen("sauvegarde.txt","a");
+                            for (i=1;i<N+1;i++){
+                                for (j=1;i<N+1;i++){
+                                    n=matid[i][j];
+                                    fputc(n,write5);
+                                }
+                            }
+                            fclose(write5);
+                            write6 = fopen("sauvegarde.txt","a");
+                            for (i=1;i<N+1;i++){
+                                for (j=1;i<N+1;i++){
+                                    n=matidia[i][j];
+                                    fputc(n,write6);
+                                }
+                            }
+                            fclose(write6);
+                            write7 = fopen("sauvegarde.txt","a");
+
+                            for (j=0;i<10;i++){
+                                n=PV[j];
+                                fputc(n,write7);
+                            }
+
+                            fclose(write7);
+                            write8 = fopen("sauvegarde.txt","a");
+
+                            for (j=0;i<10;i++){
+                                n=PVia[j];
+                                fputc(n,write8);
+                            }
+
+                            fclose(write8);
+
+                            break;
+                        case '5' :
+                            system("cls");
+                            break;
+                        case 'v':
+                            gotoligcol(pop,0);
+                            Color(15,0);
+                            printf("                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n                                                            \n");
+                            gotoligcol(pop,0);
+                            affichertabl(mat,mat2);
+                            pop=pop+19;
+                            /*affichertablid(matid,matidia);*/
+
+                            break;
+
+                    }win();
+
+
+                }while(choixs!='5');
+
+                break;
+            case 3:
+                printf("Voici les regles du jeu :\n\n");
+                printf("Chaque joueur (humain et ordinateur) joue a tour de role. Le joueur ne doit pas voir les grilles de son adversaire : seules les grilles du joueur en cours sont affichees. A chaque tour de jeu, les joueurs peuvent choisir l'une des 2 actions suivantes sur un seul navire de leur choix de la grille numero 1, en choisissant les coordonnees de l'une des cases du navire :\n\n \t(1) Tirer.\n\n Le joueur tire en choisissant les coordonnees d'une case valide de l'adversaire (grille numero 2). Chaque destroyer n'est muni que d'une seule fusee eclairante. Le premier tir d'un destroyer devoile un carre de 4*4 cases dans la grille adverse a partir du coin haut et gauche. Mais attention, les navires adverses de ce carre ne seront visibles que lors du tour du jeu (quelques secondes). Pour couler un navire, il faut avoir touche toutes les cases qu'il occupe : un cuirasse est plus resistant qu'un simple destroyer, les sous-marins ne peuvent etre coules que par d'autres sous-marins. Dans ce cas, le navire adverse coule disparait et la case touchee s'affiche sur la grille numero 2.\n\n \t(2) Deplacer le navire d'une seule case sauf s'il est touche.\n\n Un navire ne peut pas se deplacer en diagonale. Il ne peut se deplacer que dans sa direction horizontale ou verticale, et d'une seule case a la fois, et le point cardinal de deplacement (est ou ouest s'il est horizontal, nord ou sud s'il est vertical). Evidemment, en cas d'obstacle (case de deplacement occupee par un autre navire ou le bord de la grille), un navire ne pourra pas effectuer son déplacement et devra tenter une nouvelle action. A chaque tour de jeu, il faudra visualiser l'action, les coordonnees et le type du navire choisis par l'ordinateur\n\n");
+                printf("Vous sentez vous pret pour commencer une partie ?\n");
+                break;
+            case 4:
+                break;
+
+        }
+
+
+
+    }while(acceuil!=4);
+
+
+
+    return 0;
+}
